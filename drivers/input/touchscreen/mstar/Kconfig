@@ -1,0 +1,132 @@
+#**********uniscope-driver-modify-file-on-qualcomm-platform*****************#
+#
+# MSTAR MSG2238 Touchscreen driver
+#
+
+config MSG2XXX_TOUCHPANEL_DRV_COMMOM
+	tristate "MSTAR MSG2238 touchpanel driver"
+	depends on TOUCHSCREEN_MSTAR
+	default n
+	help
+	  This is the main file for touchpanel driver for MSTAR MSG2238
+	  touchscreens.
+
+	  Say Y here if you have a MSTAR MSG2238 touchscreen connected
+	  to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2xxx_update.
+
+config MSG2XXX_TOUCHPANEL_DRV_QCOM
+	tristate "MSTAR MSG2238 touchpanel driver"
+	depends on TOUCHSCREEN_MSTAR
+	default n
+	help
+	  This is the main file for touchpanel driver for MSTAR MSG2238
+	  touchscreens.
+
+	  Say Y here if you have a MSTAR MSG2238 touchscreen connected
+	  to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2xxx_update.
+
+config MSG2XXX_TOUCHPANEL_DRV_IC_FW_PORTING_LAYER
+	tristate "MSTAR MSG2238 touchpanel driver"
+	depends on TOUCHSCREEN_MSTAR
+	default n
+	help
+	  This is the main file for touchpanel driver for MSTAR MSG2238
+	  touchscreens.
+
+	  Say Y here if you have a MSTAR MSG2238 touchscreen connected
+	  to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2xxx_update.
+
+config 	MSG2XXX_TOUCHPANEL_DRV_PLATFORM_INTERFACE
+	tristate "MSTAR MSG2238 touchpanel driver"
+	depends on TOUCHSCREEN_MSTAR
+	default n
+	help
+	  This is the main file for touchpanel driver for MSTAR MSG2238
+	  touchscreens.
+
+	  Say Y here if you have a MSTAR MSG2238 touchscreen connected
+	  to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2xxx_update.
+
+config MSG2XXX_TOUCHPANEL_DRV_PLATFORM_PORTING_LAYER
+	tristate "MSTAR MSG2238 touchpanel driver"
+	depends on TOUCHSCREEN_MSTAR
+	default n
+	help
+	  This is the main file for touchpanel driver for MSTAR MSG2238
+	  touchscreens.
+
+	  Say Y here if you have a MSTAR MSG2238 touchscreen connected
+	  to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2xxx_update.
+
+config MSG2XXX_TOUCHPANEL_DRV_UTILITY_ADAPTION
+	tristate "MSTAR MSG2238 touchpanel driver"
+	depends on TOUCHSCREEN_MSTAR
+	default n
+	help
+	  This is the main file for touchpanel driver for MSTAR MSG2238
+	  touchscreens.
+
+	  Say Y here if you have a MSTAR MSG2238 touchscreen connected
+	  to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2xxx_update.
+
+config MSG2XXX_TOUCHPANEL_DRV_MAIN
+	tristate "MSTAR MSG2238 touchpanel driver"
+	depends on TOUCHSCREEN_MSTAR
+	default n
+	help
+	  This is the main file for touchpanel driver for MSTAR MSG2238
+	  touchscreens.
+
+	  Say Y here if you have a MSTAR MSG2238 touchscreen connected
+	  to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2xxx_update.
+
+config MSG2XXX_TOUCHPANEL_DRV_SELF_FW_CONTROL
+	tristate "MSTAR MSG2238 touchpanel driver"
+	depends on TOUCHSCREEN_MSTAR
+	default n
+	help
+	  This is the main file for touchpanel driver for MSTAR MSG2238
+	  touchscreens.
+
+	  Say Y here if you have a MSTAR MSG2238 touchscreen connected
+	  to your system.
+
+	  If unsure, say N.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called msg2xxx_update.
