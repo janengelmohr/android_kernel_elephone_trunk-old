@@ -1,4 +1,4 @@
-/* Copyright (c) 2014, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -20,27 +20,98 @@
 };
 
 &soc {
-	i2c@78ba000 { /* BLSP1 QUP6 */
-		nfc-nci@e {
-			compatible = "qcom,nfc-nci";
-			reg = <0x0e>;
-			qcom,irq-gpio = <&msm_gpio 21 0x00>;
-			qcom,dis-gpio = <&msm_gpio 20 0x00>;
-			qcom,clk-src = "BBCLK2";
-			qcom,clk-en-gpio = <&msm_gpio 0 0x00>;
-			interrupt-parent = <&msm_gpio>;
-			interrupts = <21 0>;
-			interrupt-names = "nfc_irq";
-			pinctrl-names = "nfc_active","nfc_suspend";
-			pinctrl-0 = <&nfc_int_active &nfc_disable_active>;
-			pinctrl-1 = <&nfc_int_suspend &nfc_disable_suspend>;
-			qcom,clk-gpio = <&pm8916_gpios 2 0>;
-			clocks = <&clock_rpm clk_bb_clk2_pin>;
-			clock-names = "ref_clk";
+	tp_power: regulator-tp {
+		compatible = "regulator-fixed";
+		regulator-name = "tp_power";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		gpio = <&msm_gpio 50 0x01>;
+		startup-delay-us = <20000>;
+		enable-active-high;
+	};
+	
+	i2c@78b9000 { /* BLSP1 QUP5 */
+		goodix@5d {
+			compatible = "goodix,gt9xx";
+			reg = <0x5d>;
+			interrupt-parent = <&msm_gpio>; 
+			interrupts = <13 0x2008>;  
+			reset-gpios = <&msm_gpio 12 0x00>;
+			interrupt-gpios = <&msm_gpio 13 0x00>;
+			avdd-supply =<&tp_power>;
+			goodix,panel-coords = <0 0 720 1280>;
+			goodix,display-coords = <0 0 720 1280>;			
+			goodix,button-map= <158 102 139>;
+			goodix,product-id = "915";
+			goodix,cfg-data0 = [
+				41 E0 01 20 03 0A 05 C1 01 08 
+				28 05 50 32 03 05 00 00 FF 7F 
+				00 00 00 00 00 00 14 88 27 0A 
+				2C 2E B5 06 00 00 01 9B 33 11 
+				3C 01 00 00 00 03 64 32 00 00 
+				CA 1E 5A 94 C5 02 07 00 00 04 
+				A8 21 00 88 29 00 6D 34 00 58 
+				41 00 48 51 00 48 0F 2F 47 00 
+				F7 40 30 FF FF 27 00 00 00 00 
+				00 00 00 00 00 00 00 00 00 00 
+				00 00 00 00 00 00 00 19 00 00 
+				46 00 08 0A 0C 0E 10 12 14 16 
+				18 1A 00 00 00 00 00 00 00 00 
+				00 00 00 00 00 00 00 00 00 00 
+				00 00 28 24 22 20 1F 1E 1D 0C 
+				0A 08 06 05 04 02 00 00 00 00 
+				00 00 00 00 00 00 00 00 00 00 
+				00 FF FF FF FF FF FF FF FF FF 
+				FF FF FF FF B4 01];
+			goodix,cfg-data1 = [
+				41 E0 01 20 03 0A 05 C1 01 08 
+				28 05 50 32 03 05 00 00 FF 7F 
+				00 00 00 00 00 00 14 88 27 0A 
+				2C 2E B5 06 00 00 01 9B 33 11 
+				3C 01 00 00 00 03 64 32 00 00 
+				CA 1E 5A 94 C5 02 07 00 00 04 
+				A8 21 00 88 29 00 6D 34 00 58 
+				41 00 48 51 00 48 0F 2F 47 00 
+				F7 40 30 FF FF 27 00 00 00 00 
+				00 00 00 00 00 00 00 00 00 00 
+				00 00 00 00 00 00 00 19 00 00 
+				46 00 08 0A 0C 0E 10 12 14 16 
+				18 1A 00 00 00 00 00 00 00 00 
+				00 00 00 00 00 00 00 00 00 00 
+				00 00 28 24 22 20 1F 1E 1D 0C 
+				0A 08 06 05 04 02 00 00 00 00 
+				00 00 00 00 00 00 00 00 00 00 
+				00 FF FF FF FF FF FF FF FF FF 
+				FF FF FF FF B4 01];
+			goodix,fw_name = "gtp_fw.bin";
 		};
 	};
 
+	vdd_vreg: vdd_vreg {
+		compatible = "regulator-fixed";
+		status = "ok";
+		regulator-name = "vdd_vreg";
+	};
 
+	gen-vkeys {
+		compatible = "qcom,gen-vkeys";
+		label = "gt9xx";
+                qcom,disp-maxx = <540>;
+ 		qcom,disp-maxy = <960>;
+ 		qcom,panel-maxx = <566>;	
+                qcom,panel-maxy = <1067>; 
+		qcom,key-codes = <139 172 158>;
+		qcom,y-offset = <0>;
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		keypad-backlight {
+			gpios = <&msm_gpio 49 0>;
+			label = "button-backlight";
+			linux,default-trigger = "none";
+		};
+	};
 };
 
 &android_usb {
@@ -74,6 +145,16 @@
 			gpio-key,wakeup;
 			debounce-interval = <15>;
 		};
+
+		vol_down {
+			label = "volume_down";
+			gpios = <&msm_gpio 108 0x1>;
+			linux,input-type = <1>;
+			linux,code = <114>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+		};
+
 	};
 };
 
@@ -94,7 +175,11 @@
 
 	gpio@c200 { /* GPIO 3 */
 		/* External regulator control for WTR */
-		status = "disabled";
+		qcom,mode = <0>; /* QPNP_PIN_MODE_DIG_IN */
+		qcom,pull = <5>; /* QPNP_PIN_PULL_NO */
+		qcom,vin-sel = <2>; /* QPNP_PIN_VIN2 */
+		qcom,src-sel = <2>; /* QPNP_PIN_SEL_FUNC_1 */
+		qcom,master-en = <0>;
 	};
 
 	gpio@c300 { /* GPIO 4 */
@@ -135,18 +220,7 @@
 	pinctrl-names = "active", "sleep";
 	pinctrl-0 = <&sdc2_clk_on &sdc2_cmd_on &sdc2_data_on &sdc2_cd_on>;
 	pinctrl-1 = <&sdc2_clk_off &sdc2_cmd_off &sdc2_data_off &sdc2_cd_off>;
-
-	#address-cells = <0>;
-	interrupt-parent = <&sdhc_2>;
-	interrupts = <0 1 2>;
-	#interrupt-cells = <1>;
-	interrupt-map-mask = <0xffffffff>;
-	interrupt-map = <0 &intc 0 125 0
-			1 &intc 0 221 0
-			2 &msm_gpio 38 0>;
-	interrupt-names = "hc_irq", "pwr_irq", "status_irq";
-	cd-gpios = <&msm_gpio 38 0x0>;
-
+	qcom,nonremovable;
 	status = "ok";
 };
 

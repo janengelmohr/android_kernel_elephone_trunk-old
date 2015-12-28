@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -12,45 +12,54 @@
  */
 
 &tlmm_pinmux {
-	lm3642-en-pin {
-		qcom,pins = <&gp 31>, <&gp 86>;
+	camera_ldo_pins_default {
+		qcom,pins = <&gp 114>, <&gp 110>;
 		qcom,num-grp-pins = <2>;
-		label = "lm3642_en_pins";
 		qcom,pin-func = <0>;
-
-		lm3642_en_default: en-default {
-			driver-strength = <2>;
-			bias-disable;
+		label = "camera_ldo_pins_default";
+		camera_ldo_default: en_default {
+			drive-strength = <2>;
+			bias-pull-up;
 		};
-		lm3642_en_suspend: en-suspend {
-			driver-strength = <2>;
+	};
+
+	camera_ldo_pins_sleep {
+		qcom,pins = <&gp 114>, <&gp 110>;
+		qcom,num-grp-pins = <2>;
+		qcom,pin-func = <0>;
+		label = "camera_ldo_pins_suspend";
+		camera_ldo_suspend: en_suspend {
+			drive-strength = <2>;
 			bias-pull-down;
 		};
 	};
-
 };
-&i2c_0 {
-	flash_lm3642:qcom,led-flash@0 {
-		cell-index = <0>;
-		reg = <0x63>;
-		qcom,slave-id = <0xC6 0x00 0x0011>;
-		compatible = "ti,lm3642";
-		label = "lm3642";
-		qcom,flash-type = <1>;
-		pinctrl-names = "cam_flash_default","cam_flash_suspend";
-		pinctrl-0 = <&lm3642_en_default>;
-		pinctrl-1 = <&lm3642_en_suspend>;
-		gpios = <&msm_gpio 86 0>,
-			<&msm_gpio 31 0>;
-		qcom,gpio-flash-en = <0>;
-		qcom,gpio-flash-now = <1>;
-		qcom,gpio-req-tbl-num = <0 1>;
-		qcom,gpio-req-tbl-flags = <0 0>;
-		qcom,gpio-req-tbl-label = "FLASH_EN",
-			"FLASH_NOW";
+
+&soc{
+
+	flash_SGM3140:flashlight {
+		compatible = "qcom,leds-gpio-flash";
+		status = "okay";
+		pinctrl-names = "cam_flash_default";
+		pinctrl-0 = <&cam_sensor_flash_default>;
+		qcom,flash-en = <&msm_gpio 8 0>;
+		qcom,flash-now = <&msm_gpio 32 0>;
+		qcom,op-seq = "flash_en", "flash_now";
+		qcom,torch-seq-val = <1 0>;
+		qcom,flash-seq-val = <1 0>;
+		linux,name = "flashlight";
+		linux,default-trigger = "flashlight-trigger";
 	};
-
+	
+	led_flash0: qcom,camera-led-flash {
+			cell-index = <0>;
+			compatible = "qcom,camera-led-flash";
+			qcom,flash-type = <3>;
+			qcom,flash-source = <&flash_SGM3140>;
+			qcom,torch-source = <&flash_SGM3140>;
+	}; 
 };
+
 &cci {
 	actuator0: qcom,actuator@6e {
 		cell-index = <3>;
@@ -67,38 +76,33 @@
 		qcom,csid-sd-index = <0>;
 		qcom,mount-angle = <90>;
 		qcom,actuator-src = <&actuator0>;
-		qcom,led-flash-src = <&flash_lm3642>;
-		cam_vdig-supply = <&pm8916_l2>;
-		cam_vio-supply = <&pm8916_l6>;
+		qcom,led-flash-src = <&led_flash0>;
+		cam_vdig-supply = <&pm8916_s4>;
 		cam_vana-supply = <&pm8916_l17>;
+		cam_vio-supply = <&pm8916_l6>;
 		cam_vaf-supply = <&pm8916_l10>;
 		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana",
 							"cam_vaf";
-		qcom,cam-vreg-min-voltage = <1200000 0 2850000 2800000>;
-		qcom,cam-vreg-max-voltage = <1200000 0 2850000 2800000>;
+		qcom,cam-vreg-type = <0 1 0 0>;
+		qcom,cam-vreg-min-voltage = <2100000 0 2850000 2800000>;
+		qcom,cam-vreg-max-voltage = <2100000 0 2850000 2800000>;
 		qcom,cam-vreg-op-mode = <200000 0 80000 100000>;
 		pinctrl-names = "cam_default", "cam_suspend";
-		pinctrl-0 = <&cam_sensor_mclk0_default &cam_sensor_rear_default>;
-		pinctrl-1 = <&cam_sensor_mclk0_sleep &cam_sensor_rear_sleep>;
+		pinctrl-0 = <&cam_sensor_mclk0_default &cam_sensor_rear_default &camera_ldo_default>;
+		pinctrl-1 = <&cam_sensor_mclk0_sleep &cam_sensor_rear_sleep &camera_ldo_suspend>;
 		gpios = <&msm_gpio 26 0>,
+				<&msm_gpio 10 0>,
 				<&msm_gpio 35 0>,
-				<&msm_gpio 34 0>,
-				<&msm_gpio 114 0>,
-				<&msm_gpio 110 0>,
-				<&msm_gpio 120 0>;
-		qcom,gpio-reset = <1>;
-		qcom,gpio-standby = <2>;
-		qcom,gpio-vdig = <3>;
-		qcom,gpio-vana = <4>;
-		qcom,gpio-af-pwdm = <5>;
-		qcom,gpio-req-tbl-num = <0 1 2 3 4 5>;
-		qcom,gpio-req-tbl-flags = <1 0 0 0 0 0>;
+				<&msm_gpio 34 0>;
+		qcom,gpio-vana = <1>;
+		qcom,gpio-reset = <2>;
+		qcom,gpio-standby = <3>;
+		qcom,gpio-req-tbl-num = <0 1 2 3>;
+		qcom,gpio-req-tbl-flags = <1 0 0 0>;
 		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
-				"CAM_RESET1",
-				"CAM_STANDBY",
-				"CAM_VDIG",
 				"CAM_VANA",
-				"CAM_AF_PWDM";
+				"CAM_RESET1",
+				"CAM_STANDBY";
 		qcom,sensor-position = <0>;
 		qcom,sensor-mode = <0>;
 		qcom,cci-master = <0>;
@@ -116,32 +120,30 @@
 		qcom,csiphy-sd-index = <1>;
 		qcom,csid-sd-index = <1>;
 		qcom,mount-angle = <270>;
-		cam_vdig-supply = <&pm8916_l2>;
-		cam_vio-supply = <&pm8916_l6>;
+		cam_vdig-supply = <&pm8916_l16>;
 		cam_vana-supply = <&pm8916_l17>;
+		cam_vio-supply = <&pm8916_l6>;
 		qcom,cam-vreg-name = "cam_vdig", "cam_vio", "cam_vana";
-		qcom,cam-vreg-min-voltage = <1200000 0 2850000>;
-		qcom,cam-vreg-max-voltage = <1200000 0 2850000>;
+		qcom,cam-vreg-type = <0 1 0>;
+		qcom,cam-vreg-min-voltage = <1800000 0 2850000>;
+		qcom,cam-vreg-max-voltage = <1800000 0 2850000>;
 		qcom,cam-vreg-op-mode = <200000 0 80000>;
 		pinctrl-names = "cam_default", "cam_suspend";
-		pinctrl-0 = <&cam_sensor_mclk1_default &cam_sensor_front_default>;
-		pinctrl-1 = <&cam_sensor_mclk1_sleep &cam_sensor_front_sleep>;
+		pinctrl-0 = <&cam_sensor_mclk1_default &cam_sensor_front_default &camera_ldo_default>;
+		pinctrl-1 = <&cam_sensor_mclk1_sleep &cam_sensor_front_sleep &camera_ldo_suspend>;
 		gpios = <&msm_gpio 27 0>,
+				<&msm_gpio 10 0>, 
 				<&msm_gpio 28 0>,
-				<&msm_gpio 33 0>,
-				<&msm_gpio 114 0>,
-				<&msm_gpio 110 0>;
-		qcom,gpio-reset = <1>;
-		qcom,gpio-standby = <2>;
-		qcom,gpio-vdig = <3>;
-		qcom,gpio-vana = <4>;
-		qcom,gpio-req-tbl-num = <0 1 2 3 4>;
-		qcom,gpio-req-tbl-flags = <1 0 0 0 0>;
+				<&msm_gpio 33 0>;
+		qcom,gpio-vana = <1>;
+		qcom,gpio-reset = <2>;
+		qcom,gpio-standby = <3>;
+		qcom,gpio-req-tbl-num = <0 1 2 3>;
+		qcom,gpio-req-tbl-flags = <1 0 0 0>;
 		qcom,gpio-req-tbl-label = "CAMIF_MCLK",
+				"CAM_VANA",
 				"CAM_RESET",
-				"CAM_STANDBY",
-				"CAM_VDIG",
-				"CAM_VANA";
+				"CAM_STANDBY";
 		qcom,sensor-position = <1>;
 		qcom,sensor-mode = <0>;
 		qcom,cci-master = <0>;
@@ -152,5 +154,4 @@
 		clock-names = "cam_src_clk", "cam_clk";
 	};
 };
-
 

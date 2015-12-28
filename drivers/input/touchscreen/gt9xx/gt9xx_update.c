@@ -82,6 +82,8 @@ struct st_update_msg {
 	struct st_fw_head  ic_fw_msg;
 };
 
+struct i2c_client  *i2c_connect_client;
+
 static struct st_update_msg update_msg;
 u16 show_len;
 u16 total_len;
@@ -565,8 +567,6 @@ static s8 gup_update_config(struct i2c_client *client,
 		!memcmp(&pid[GTP_ADDR_LENGTH], "960", 3)) {
 		chip_cfg_len = 228;
 	}
-	pr_debug("config file ASCII len:%d", cfg->size);
-	pr_debug("need config binary len:%d", chip_cfg_len);
 	if ((cfg->size + 5) < chip_cfg_len * 5) {
 		pr_err("Config length error");
 		return -EINVAL;
@@ -644,12 +644,9 @@ static s32 gup_get_firmware_file(struct i2c_client *client,
 
 	ret = request_firmware(&fw, path, &client->dev);
 	if (ret < 0) {
-		dev_info(&client->dev, "Cannot get firmware - %s (%d)\n",
-					path, ret);
 		return -EEXIST;
 	}
 
-	dev_dbg(&client->dev, "Config File: %s size=%d", path, fw->size);
 	msg->fw_data =
 		devm_kzalloc(&client->dev, fw->size, GFP_KERNEL);
 	if (!msg->fw_data) {
